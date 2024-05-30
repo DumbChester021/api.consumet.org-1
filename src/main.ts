@@ -28,12 +28,15 @@ const fastify = Fastify({
   logger: true,
 });
 export const tmdbApi = process.env.TMDB_KEY && process.env.TMDB_KEY;
+
 (async () => {
   const PORT = Number(process.env.PORT) || 3000;
 
+  // Correct CORS Headers Configuration
   await fastify.register(FastifyCors, {
     origin: '*',
-    methods: 'GET',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
   });
 
   if (process.env.NODE_ENV === 'DEMO') {
@@ -168,6 +171,6 @@ export const tmdbApi = process.env.TMDB_KEY && process.env.TMDB_KEY;
   }
 })();
 export default async function handler(req: any, res: any) {
-  await fastify.ready()
-  fastify.server.emit('request', req, res)
+  await fastify.ready();
+  fastify.server.emit('request', req, res);
 }
