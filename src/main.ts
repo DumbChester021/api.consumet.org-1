@@ -34,9 +34,26 @@ export const tmdbApi = process.env.TMDB_KEY && process.env.TMDB_KEY;
 
   // Correct CORS Headers Configuration
   await fastify.register(FastifyCors, {
-    origin: '*',
+    origin: (origin, cb) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return cb(null, true);
+      
+      const allowedOrigins = [
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'https://your-production-domain.com'
+      ];
+      
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        cb(null, true);
+      } else {
+        cb(new Error('Not allowed by CORS'), false);
+      }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+    credentials: true,
+    maxAge: 86400, // 24 hours
   });
 
   if (process.env.NODE_ENV === 'DEMO') {
